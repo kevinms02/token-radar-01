@@ -1,9 +1,8 @@
 /**
- * Token Radar Type Definitions
- * make.fun competition #3 (token-radar-01)
+ * Token Launch Radar Specification & Interfaces
+ * Bounty: token-radar-01 (make.fun)
  */
 
-/** Protocol entry directly from the sealed snapshot.json */
 export interface SnapshotProtocol {
   slug: string;
   name: string;
@@ -17,7 +16,6 @@ export interface SnapshotProtocol {
   symbol: string | null;
 }
 
-/** Complete sealed snapshot document */
 export interface Snapshot {
   as_of: string;
   source: string;
@@ -26,7 +24,6 @@ export interface Snapshot {
   watchlist: string[];
 }
 
-/** Model constants and parameters */
 export interface ModelConstants {
   version: string;
   sublinear_elasticity: number;
@@ -40,7 +37,6 @@ export interface ModelConstants {
   multiple_clamp_max: number;
 }
 
-/** Model computation details for transparency */
 export interface ModelBreakdown {
   category_multiple: number;
   base_tvl_factor: number;
@@ -51,14 +47,12 @@ export interface ModelBreakdown {
   age_days: number | null;
 }
 
-/** Individual row of board.json matching competition gate rules */
 export interface BoardRow {
   rank: number;
   slug: string;
   name: string;
   implied_value_usd: number;
   farm_steps: string[];
-  // Extended fields for dashboard and transparent scoring
   category?: string | null;
   chains?: string[];
   tvl_usd?: number;
@@ -76,12 +70,10 @@ export interface BoardRow {
   is_watchlist?: boolean;
 }
 
-/** Root container for board.json */
 export interface Board {
   rows: BoardRow[];
 }
 
-/** Live token protocol comparable from snapshot */
 export interface LiveComp {
   slug: string;
   name: string;
@@ -93,7 +85,6 @@ export interface LiveComp {
   change_7d?: number | null;
 }
 
-/** Enriched radar protocol combining snapshot data with calculated valuation metrics */
 export interface RadarProtocol extends SnapshotProtocol {
   rank: number;
   implied_value_usd: number;
@@ -107,7 +98,6 @@ export interface RadarProtocol extends SnapshotProtocol {
   model: ModelBreakdown;
 }
 
-/** Summary statistics for dashboard KPI cards */
 export interface RadarSummary {
   watchlist_size: number;
   board_size: number;
@@ -119,7 +109,6 @@ export interface RadarSummary {
   top_category: string;
 }
 
-/** Full data structure exported to window.RADAR in data.js */
 export interface RadarData {
   as_of: string;
   source: string;
@@ -130,7 +119,6 @@ export interface RadarData {
   live_comps: LiveComp[];
   summary: RadarSummary;
   protocols: RadarProtocol[];
-  // Backwards compatibility aliases for dashboard renderers
   rows: RadarProtocol[];
   live: LiveComp[];
   watchlist_size: number;

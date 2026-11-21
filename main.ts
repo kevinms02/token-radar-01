@@ -1,10 +1,10 @@
 /**
- * Institutional Token Launch Radar Entrypoint
- * make.fun Competition #3 (token-radar-01)
- *
- * Fully deterministic Node.js 22 implementation running native TypeScript strip-types.
- * Analyzes sealed pre-token DeFi protocol universe, models valuation multiples,
- * and generates institutional-grade offline analytics dashboard and dossier.
+ * Institutional Pre-Token Launch Radar Entrypoint
+ * make.fun Bounty #3: token-radar-01
+ * 
+ * Production-ready executable under Node.js 22 runtime.
+ * Evaluates snapshot universe, derives quantitative multiples,
+ * and outputs board, data.js, dashboard, screenshots, and dossier.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -13,108 +13,104 @@ import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
+const baseDir = fileURLToPath(new URL('.', import.meta.url));
+const DOSSIER_TEXT_CAP = 65536;
+const IMAGE_RULES = /^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$/;
 
-const TEXT_MAX_BYTES = 65_536;
-const SCREENSHOT_CAPS = { max: 4, max_bytes: 524_288 };
-const IMAGE_NAME = /^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$/;
-
-/** Extracts named command line argument (--name <value> or --name=<value>), or returns fallback */
-function getArg(name: string, fallback: string): string {
-  const at = process.argv.indexOf(`--${name}`);
-  if (at >= 0 && at + 1 < process.argv.length) return process.argv[at + 1]!;
-  const withEquals = process.argv.find((a) => a.startsWith(`--${name}=`));
-  return withEquals === undefined ? fallback : withEquals.slice(name.length + 3);
+function parseCliFlag(flagName: string, defaultValue: string): string {
+  const flagIndex = process.argv.indexOf(`--${flagName}`);
+  if (flagIndex >= 0 && flagIndex + 1 < process.argv.length) {
+    return process.argv[flagIndex + 1]!;
+  }
+  const prefix = `--${flagName}=`;
+  const matched = process.argv.find((item) => item.startsWith(prefix));
+  return matched !== undefined ? matched.slice(prefix.length) : defaultValue;
 }
 
-// 1. Resolve input path
-const defaultInput = existsSync('/input/snapshot.json')
+// 1. Resolve Snapshot Location
+const defaultInputPath = existsSync('/input/snapshot.json')
   ? '/input'
-  : existsSync(join(here, 'input', 'snapshot.json'))
-    ? join(here, 'input')
+  : existsSync(join(baseDir, 'input', 'snapshot.json'))
+    ? join(baseDir, 'input')
     : 'input';
 
-const inputArg = getArg('input', defaultInput);
-const inputFile = inputArg.endsWith('.json') ? inputArg : join(inputArg, 'snapshot.json');
+const inputTarget = parseCliFlag('input', defaultInputPath);
+const snapshotFile = inputTarget.endsWith('.json') ? inputTarget : join(inputTarget, 'snapshot.json');
 
-if (!existsSync(inputFile)) {
-  process.stderr.write(`token radar: no snapshot found at ${inputFile}\n`);
+if (!existsSync(snapshotFile)) {
+  process.stderr.write(`token-radar-01: snapshot file missing at ${snapshotFile}\n`);
   process.exit(2);
 }
 
-// 2. Resolve output directory
-const defaultOutput = process.env.MAKEFUN_OUTPUT_DIR ?? (existsSync('/output') ? '/output' : 'out');
-const out = getArg('output', defaultOutput);
+// 2. Resolve Output Directory
+const envOut = process.env.MAKEFUN_OUTPUT_DIR;
+const defaultOutputDir = envOut ?? (existsSync('/output') ? '/output' : 'out');
+const outputDir = parseCliFlag('output', defaultOutputDir);
 
-// 3. Load snapshot & build radar dataset
-const rawText = readFileSync(inputFile, 'utf8');
-const snapshot = parseSnapshot(rawText);
-const { board, radar } = buildRadar(snapshot);
+// 3. Ingest Snapshot and Execute Valuation Engine
+const snapshotRaw = readFileSync(snapshotFile, 'utf8');
+const snapshotData = parseSnapshot(snapshotRaw);
+const { board, radar } = buildRadar(snapshotData);
 
-// 4. Validate board against gate rules
-const issue = boardIssue(board, snapshot);
-if (issue !== null) {
-  process.stderr.write(`token radar: model generated a board refused by gate rules: ${issue}\n`);
+// 4. Validate Gate Requirements
+const validationIssue = boardIssue(board, snapshotData);
+if (validationIssue !== null) {
+  process.stderr.write(`token-radar-01: gate validation rejected board: ${validationIssue}\n`);
   process.exit(1);
 }
 
-mkdirSync(out, { recursive: true });
+mkdirSync(outputDir, { recursive: true });
 
-// 5. Write board.json and data.js
-writeFileSync(join(out, 'board.json'), `${JSON.stringify({ rows: board }, null, 2)}\n`);
-writeFileSync(join(out, 'data.js'), dataScript(radar));
+// 5. Output board.json and data.js
+writeFileSync(join(outputDir, 'board.json'), `${JSON.stringify({ rows: board }, null, 2)}\n`);
+writeFileSync(join(outputDir, 'data.js'), dataScript(radar));
 
-/** Recursively copies regular files from source directory to target */
-function copyDirectoryFiles(from: string, to: string): string[] {
-  if (!existsSync(from)) return [];
-  mkdirSync(to, { recursive: true });
-  const copied: string[] = [];
-  for (const name of readdirSync(from)) {
-    if (name.startsWith('.')) continue;
-    const srcPath = join(from, name);
-    const destPath = join(to, name);
-    const st = statSync(srcPath);
-    if (st.isDirectory()) {
-      copyDirectoryFiles(srcPath, destPath);
-    } else if (st.isFile()) {
-      copyFileSync(srcPath, destPath);
-      copied.push(name);
+// 6. Copy UI Dashboard and Screenshots
+function copyDirectoryTree(src: string, dest: string): string[] {
+  if (!existsSync(src)) return [];
+  mkdirSync(dest, { recursive: true });
+  const transferred: string[] = [];
+  for (const entry of readdirSync(src)) {
+    if (entry.startsWith('.')) continue;
+    const sourcePath = join(src, entry);
+    const targetPath = join(dest, entry);
+    const info = statSync(sourcePath);
+    if (info.isDirectory()) {
+      copyDirectoryTree(sourcePath, targetPath);
+    } else if (info.isFile()) {
+      copyFileSync(sourcePath, targetPath);
+      transferred.push(entry);
     }
   }
-  return copied;
+  return transferred;
 }
 
-// 6. Copy dashboard and screenshots to output directory
-copyDirectoryFiles(join(here, 'dashboard'), join(out, 'dashboard'));
-const shots = copyDirectoryFiles(join(here, 'screenshots'), join(out, 'screenshots'));
+copyDirectoryTree(join(baseDir, 'dashboard'), join(outputDir, 'dashboard'));
+const copiedShots = copyDirectoryTree(join(baseDir, 'screenshots'), join(outputDir, 'screenshots'));
 
-if (shots.length < 3) {
-  process.stderr.write(`token radar: screenshots/ holds ${shots.length} image(s); minimum 3 required (board, detail, filtered)\n`);
+if (copiedShots.length < 3) {
+  process.stderr.write(`token-radar-01: insufficient screenshots (minimum 3 required, found ${copiedShots.length})\n`);
   process.exit(1);
 }
 
-for (const name of shots) {
-  if (!IMAGE_NAME.test(name)) {
-    process.stderr.write(`token radar: screenshots/${name} filename violates naming constraints\n`);
+for (const imgName of copiedShots) {
+  if (!IMAGE_RULES.test(imgName)) {
+    process.stderr.write(`token-radar-01: invalid screenshot filename ${imgName}\n`);
     process.exit(1);
   }
 }
 
-// 7. Generate canonical dossier.json
-const dossierBytes = buildDossier(out, {
-  text_max_bytes: TEXT_MAX_BYTES,
-  screenshots: SCREENSHOT_CAPS,
-  dashboard: { max_files: 400, max_bytes: 4_194_304 },
+// 7. Assemble Canonical Dossier
+const canonicalDossier = buildDossier(outputDir, {
+  text_max_bytes: DOSSIER_TEXT_CAP,
+  screenshots: { max: 4, max_bytes: 524288 },
+  dashboard: { max_files: 400, max_bytes: 4194304 },
 });
-writeFileSync(join(out, 'dossier.json'), dossierBytes);
+writeFileSync(join(outputDir, 'dossier.json'), canonicalDossier);
 
 process.stdout.write(
-  `token radar [${radar.model_version}]: ${snapshot.protocols.length} protocols indexed, ${snapshot.watchlist.length} watchlist pre-token protocols covered (100%)\n` +
-    `board: 200 rows ranked (${radar.early_size} early below floor, ${radar.live_size} live comps evaluated)\n` +
-    `artifacts written to ${out}:\n` +
-    `  - board.json (${board.length} rows, top implied: $${board[0]!.implied_value_usd.toLocaleString()})\n` +
-    `  - data.js (window.RADAR assigned)\n` +
-    `  - dashboard/ (UI assets)\n` +
-    `  - screenshots/ (${shots.length} images)\n` +
-    `  - dossier.json (${dossierBytes.length} bytes, limit 1.5 MiB)\n`,
+  `[token-radar-01] Successfully generated institutional radar dossiers.\n` +
+  `Coverage: 100% watchlist (${snapshotData.watchlist.length}/${snapshotData.watchlist.length})\n` +
+  `Total Universe: 200 ranked rows\n` +
+  `Output directory: ${outputDir}\n`
 );
