@@ -1,8 +1,6 @@
-/**
- * Token Launch Radar Specification & Interfaces
- * Bounty: token-radar-01 (make.fun)
- */
+// TypeScript interfaces for Token Launch Radar (token-radar-01)
 
+/** Raw protocol record directly from DefiLlama snapshot */
 export interface SnapshotProtocol {
   slug: string;
   name: string;
@@ -16,6 +14,7 @@ export interface SnapshotProtocol {
   symbol: string | null;
 }
 
+/** Complete sealed snapshot document */
 export interface Snapshot {
   as_of: string;
   source: string;
@@ -24,105 +23,96 @@ export interface Snapshot {
   watchlist: string[];
 }
 
+/** Quantitative valuation model configuration and calibration weights */
 export interface ModelConstants {
-  version: string;
-  sublinear_elasticity: number;
-  growth_clamp_min: number;
-  growth_clamp_max: number;
+  base_multiple: number;
   growth_weight: number;
-  breadth_weight: number;
-  breadth_cap: number;
-  default_category_multiple: number;
-  multiple_clamp_min: number;
-  multiple_clamp_max: number;
+  growth_floor: number;
+  growth_cap: number;
+  maturity_floor: number;
+  maturity_range: number;
+  maturity_days: number;
+  unknown_age_days: number;
 }
 
-export interface ModelBreakdown {
-  category_multiple: number;
-  base_tvl_factor: number;
+/** Structured farm step: action, estimated cost, and required duration */
+export interface FarmStep {
+  text: string;
+  cost: string;
+  time: string;
+}
+
+/** Valuation breakdown metrics for transparent auditing */
+export interface ValuationBreakdown {
+  base_multiple: number;
   growth_pct: number;
-  growth_factor: number;
-  maturity_factor: number;
-  breadth_factor: number;
+  growth_multiplier: number;
+  maturity_multiplier: number;
+  multichain_multiplier: number;
   age_days: number | null;
 }
 
+/** One ranked row in board.json */
 export interface BoardRow {
   rank: number;
   slug: string;
   name: string;
+  category: string | null;
+  chains: string[];
+  tvl_usd: number;
+  change_7d: number | null;
+  mcap_usd: number | null;
+  listed_at: string | null;
+  gecko_id: string | null;
+  symbol: string | null;
+  token_status: 'pre-token';
+  age_days: number | null;
   implied_value_usd: number;
+  model: ValuationBreakdown;
   farm_steps: string[];
-  category?: string | null;
-  chains?: string[];
-  tvl_usd?: number;
-  change_7d?: number | null;
-  mcap_usd?: number | null;
-  listed_at?: string | null;
-  gecko_id?: string | null;
-  symbol?: string | null;
-  token_status?: 'pre-token';
-  age_days?: number | null;
-  model?: ModelBreakdown;
-  risk_tier?: 'Low' | 'Moderate' | 'High';
-  readiness_tier?: 'Launch Ready' | 'Scaling' | 'Mature';
-  primary_chain?: string;
-  is_watchlist?: boolean;
 }
 
-export interface Board {
-  rows: BoardRow[];
-}
-
-export interface LiveComp {
+/** Compact radar row optimized for client dashboard data.js */
+export interface RadarRow {
+  rank: number;
   slug: string;
   name: string;
-  category: string;
-  mcap_usd: number;
+  category: string | null;
+  chains: string[];
   tvl_usd: number;
-  multiple: number;
-  chains?: string[];
-  change_7d?: number | null;
-}
-
-export interface RadarProtocol extends SnapshotProtocol {
-  rank: number;
-  implied_value_usd: number;
-  multiple: number;
+  change_7d: number | null;
+  mcap_usd: number | null;
+  listed_at: string | null;
   age_days: number | null;
+  implied_value_usd: number;
+  growth_multiplier: number;
+  maturity_multiplier: number;
+  multichain_multiplier: number;
   farm_steps: string[];
-  risk_tier: 'Low' | 'Moderate' | 'High';
-  readiness_tier: 'Launch Ready' | 'Scaling' | 'Mature';
-  primary_chain: string;
-  is_watchlist: boolean;
-  model: ModelBreakdown;
 }
 
-export interface RadarSummary {
-  watchlist_size: number;
-  board_size: number;
-  early_size: number;
-  live_size: number;
-  total_implied_usd: number;
-  median_multiple: number;
-  avg_growth_7d: number;
-  top_category: string;
+/** Benchmark live-token protocol representation */
+export interface LiveRow {
+  slug: string;
+  name: string;
+  category: string | null;
+  chains: string[];
+  tvl_usd: number;
+  mcap_usd: number | null;
+  change_7d: number | null;
 }
 
+/** Full data envelope delivered to dashboard as window.RADAR */
 export interface RadarData {
   as_of: string;
   source: string;
   floor_usd: number;
-  model_version: string;
   model: ModelConstants;
-  watchlist_slugs: string[];
-  live_comps: LiveComp[];
-  summary: RadarSummary;
-  protocols: RadarProtocol[];
-  rows: RadarProtocol[];
-  live: LiveComp[];
+  model_version: string;
   watchlist_size: number;
   board_size: number;
   early_size: number;
   live_size: number;
+  rows: RadarRow[];
+  live: LiveRow[];
 }

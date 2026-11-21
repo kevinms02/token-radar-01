@@ -1,5 +1,26 @@
 {
   "name": "token-radar-01",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "description": "Institutional-grade Solana Token Launch Radar for make.fun token-radar-01 competition",
+  "main": "main.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types main.ts",
+    "build": "node --experimental-strip-types main.ts",
+    "test": "node --experimental-strip-types scripts/verify-submission.ts",
+    "check": "node scripts/verify-submission.ts",
+    "screenshots": "node --experimental-strip-types scripts/render-screenshots.ts"
+  },
+  "keywords": [
+    "solana",
+    "defi",
+    "token-radar",
+    "valuation",
+    "airdrop"
+  ],
+  "author": "kevinms02",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.65.1"
+  }
 }

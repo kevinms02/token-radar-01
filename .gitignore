@@ -1,15 +1,4 @@
-node_modules/
+node_modules
 out/
-out_real/
-out_test/
-token-radar-01-kit/
-kit.tar.gz
-transcripts.tar.gz
-temp_shot.png
-*.log
-
 input/
-tests/
-*.md
-!README.md
-!system_prompt.md
+bundle.tar.gz
