@@ -1,0 +1,9 @@
+node_modules/
+out/
+out_real/
+out_test/
+token-radar-01-kit/
+kit.tar.gz
+transcripts.tar.gz
+temp_shot.png
+*.log

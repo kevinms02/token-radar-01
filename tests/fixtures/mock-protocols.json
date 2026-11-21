@@ -1,0 +1,92 @@
+{
+  "as_of": "2026-11-14",
+  "source": "DefiLlama Mock Boundary Test",
+  "floor_usd": 50000000,
+  "watchlist": ["protocol-boundary-1", "protocol-boundary-2"],
+  "protocols": [
+    {
+      "slug": "protocol-null-change",
+      "name": "Protocol Null Change",
+      "category": "Lending",
+      "chains": ["Ethereum"],
+      "tvl_usd": 60000000,
+      "change_7d": null,
+      "mcap_usd": null,
+      "listed_at": "2025-01-01",
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-extreme-negative",
+      "name": "Protocol Extreme Negative",
+      "category": "Dexs",
+      "chains": ["Solana"],
+      "tvl_usd": 75000000,
+      "change_7d": -72.7093,
+      "mcap_usd": null,
+      "listed_at": "2024-06-01",
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-extreme-positive",
+      "name": "Protocol Extreme Positive",
+      "category": "RWA",
+      "chains": ["Arbitrum"],
+      "tvl_usd": 85000000,
+      "change_7d": 4448.4747,
+      "mcap_usd": null,
+      "listed_at": "2024-01-01",
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-null-date",
+      "name": "Protocol Null Date",
+      "category": "Yield",
+      "chains": ["Base"],
+      "tvl_usd": 55000000,
+      "change_7d": 5.2,
+      "mcap_usd": null,
+      "listed_at": null,
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-null-category",
+      "name": "Protocol Null Category",
+      "category": null,
+      "chains": ["Optimism"],
+      "tvl_usd": 90000000,
+      "change_7d": 1.5,
+      "mcap_usd": null,
+      "listed_at": "2025-02-01",
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-boundary-1",
+      "name": "Protocol Boundary 1",
+      "category": "Derivatives",
+      "chains": ["Ethereum", "Arbitrum"],
+      "tvl_usd": 50000000,
+      "change_7d": 0.0,
+      "mcap_usd": null,
+      "listed_at": "2026-11-14",
+      "gecko_id": null,
+      "symbol": null
+    },
+    {
+      "slug": "protocol-boundary-2",
+      "name": "Protocol Boundary 2",
+      "category": "Indexes",
+      "chains": ["Polygon"],
+      "tvl_usd": 116083653379,
+      "change_7d": 12.5,
+      "mcap_usd": null,
+      "listed_at": "2020-01-01",
+      "gecko_id": null,
+      "symbol": null
+    }
+  ]
+}
