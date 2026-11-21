@@ -9,4 +9,7 @@ temp_shot.png
 *.log
 
 input/
-
+tests/
+*.md
+!README.md
+!system_prompt.md
