@@ -7,3 +7,6 @@ kit.tar.gz
 transcripts.tar.gz
 temp_shot.png
 *.log
+
+input/
+

@@ -1,6 +1,10 @@
 /**
- * Token Radar Entrypoint (Node 22, native standard library & TypeScript strip-types)
- * make.fun competition #3 (token-radar-01)
+ * Institutional Token Launch Radar Entrypoint
+ * make.fun Competition #3 (token-radar-01)
+ *
+ * Fully deterministic Node.js 22 implementation running native TypeScript strip-types.
+ * Analyzes sealed pre-token DeFi protocol universe, models valuation multiples,
+ * and generates institutional-grade offline analytics dashboard and dossier.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
